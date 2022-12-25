@@ -1,0 +1,45 @@
+
+data work.dataset1;
+	infile '/home/u61894565/NewProject/NDAP_REPORT_6026.csv' dlm=',' dsd missover;
+	input Id Country:$15. Statelgdcode State:$40. Districtlgdcode District:$40. Year:$30. newyear
+		Householdsthatappliedforajobcard	Jobcardsissued	Jobcardsissuedforscheduledcaste:8.	
+	Jobcardsissuedforscheduledtribes	Jobcardsissuedfornstorsc	Householdsthatdemandedwork	
+	Personswhodemandedwork	Householdsthatwereallottedwork	Personsthatwereallottedwork	Musterrollsfilled	Householdsthatworkedundermgnrega	
+	Personsthatworkedundermgnrega	Householdsreached100daylimit 
+	Personswithdisability	castesthatworked	TotaldaysworkedbyNSTorSC SChoueholdsthatworked	TotaldaysworkedSCpersons	
+	SThoueholdsthatworked	TotaldaysworkedSTpersons	Householdsthatworkedonawasyojana	Totalpersondaysworkedbywomen	Totalpersondays	
+	SChouseholdsthatreachedalimit	SThouseholdsthatreachedlimit	Labourexpendituredisbursed	Materialexpendituretdisbursed	
+	LabourexpendituredisORpen	MaterialexpendituredisORpen	Amountsanctioned	Worksundermgnrega	Totalbankaccounts	Individualbankaccounts	
+	Jointbankaccounts	Amountdisbursedtobankaccounts	Postofficeaccounts	IndividualPOaccounts	Jointpostofficeaccounts	AmtdisbursedtoPOaccounts;
+
+run;
+
+proc sort data=work.dataset1;
+		by State District;
+run;
+data work.dataset2;
+	set work.dataset1;
+
+	by State District;
+	if first.District then TotalAmt=0;
+	TotalAmt + Amountsanctioned;
+	if last.District;
+	TotalAmt=round(TotalAmt);
+	format TotalAmt comma25.;
+	len1='Rs.';
+	TotalAmountSanctioned=catx(' ', len1, TotalAmt);
+	
+	Keep Id State Districtlgdcode District TotalAmt TotalAmountSanctioned;
+run;
+
+title font='Swiss/bold' height=15pt 'District Wise Total Amount Sanctioned ';
+proc print data=work.dataset2 (firstobs=2 obs=4000)noobs label ;
+	id Id;
+	label Id=ID Districtlgdcode='District Code' TotalAmt='Total Amount' 
+	TotalAmountSanctioned='Total Amount Sanctioned';
+	sum TotalAmt;
+	by State;
+run;
+title;
+
+Output:
