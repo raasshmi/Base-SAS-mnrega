@@ -13,6 +13,111 @@ proc means data=work.dataset3 Mean maxdec=0 nonobs;
 	var Householdsthatworkedundermgnrega;
 	class state /order=freq;
 run;
+---------------------------------------
+data work.dataset4(keep=Id newyear Jobcardsissued	
+	Jobcardsissuedforscheduledcaste Jobcardsissuedforscheduledtribes Jobcardsissuedfornstorsc);
+	set work.dataset1;
+run;
+run;
+proc sort data=work.dataset4;
+by newyear;
+run;
+data work.dataset5;
+set work.dataset4;
+by newyear;
+	if first.newyear then SC=0 and ST=0 and NSCST=0;
+	SC+Jobcardsissuedforscheduledcaste;
+	ST+Jobcardsissuedforscheduledtribes;
+	NSCST+Jobcardsissuedfornstorsc;
+	if last.newyear;
+	keep newyear SC ST NSCST;
+run;
+
+title font='Swiss/bold' height=15pt 'Total Job Cards issued per Year for all the Casts';
+proc print data=work.dataset5 (firstobs=2 obs=4000)noobs label;
+label newyear=Year SC='Total Job Cards issued for SC' ST='Total Job Cards issued for ST' 
+	NSCST='Total Job Cards issued for NON SC ST';
+format SC comma12. ST comma12. NSCST comma15.;
+id newyear;
+sum SC ST NSCST;
+run;
+title;
+
+
+proc template; 
+define statgraph simplepie;  
+begingraph;    
+entrytitle "Total Job Cards issued for SC";  
+layout region;      
+piechart category=SC /  datalabellocation=outside;    
+endlayout;  
+endgraph; 
+end; 
+run; 
+proc sgrender data=work.dataset5 (firstobs=2 obs=4000)           
+template=simplepie;
+run;
+
+proc template; 
+define statgraph simplepie;  
+begingraph;    
+entrytitle "Total Job Cards issued for ST";  
+layout region;      
+piechart category=ST / datalabellocation=INSIDE;    
+endlayout;  
+endgraph; 
+end; 
+run; 
+proc sgrender data=work.dataset5 (firstobs=2 obs=4000)           
+template=simplepie;
+run;
+
+proc template; 
+define statgraph simplepie;  
+begingraph;    
+entrytitle "Total Job Cards issued for NON SC ST";  
+layout region;      
+piechart category=NSCST / datalabellocation=outside;    
+endlayout;  
+endgraph; 
+end; 
+run; 
+proc sgrender data=work.dataset5 (firstobs=2 obs=4000)           
+template=simplepie;
+run;
+
+----------------
+data work.dataset4(keep=Id newyear Individualbankaccounts	
+	Jointbankaccounts Postofficeaccounts);
+	set work.dataset1;
+run;
+run;
+proc sort data=work.dataset4;
+by newyear;
+run;
+data work.dataset5;
+set work.dataset4;
+by newyear;
+	if first.newyear then IA=0 and JA=0 and POA=0;
+	IA+Individualbankaccounts;
+	JA+Jointbankaccounts;
+	POA+Postofficeaccounts;
+	if last.newyear;
+	keep newyear IA JA POA;
+run;
+
+title font='Swiss/bold' height=15pt 'Categorization of Accounts in which amount was disbursed';
+proc print data=work.dataset5 (firstobs=2 obs=4000)noobs label;
+label newyear=Year IA='Total Individual Accounts' JA='Total Joint Accounts' 
+	POA='Total Post Office Accounts';
+format IA comma12. JA comma12. POA comma15.;
+id newyear;
+sum IA JA POA;
+run;
+title;
+
+
+
 
 
 
