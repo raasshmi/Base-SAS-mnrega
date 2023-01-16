@@ -1,0 +1,18 @@
+data work.dataset3(keep=Id State Householdsthatworkedundermgnrega);
+	set work.dataset1;
+	label Householdsthatworkedundermgnrega='Households that worked under mgnrega';
+	array States[10] $20 ('Maharashtra' 'Tamil Nadu' 'West Bengal' 'Andhra Pradesh' 'Kerala' 
+	'Rajasthan' 'Tripura' 'Chhattisgarh' 'Meghalaya' 'Mizoram');
+	do i=1 to 10;
+		if State=States(i) then output;
+	end;
+run;
+
+title font='Swiss/bold' height=15pt 'Households that worked under mgnrega';
+proc means data=work.dataset3 Mean maxdec=0 nonobs; 
+	var Householdsthatworkedundermgnrega;
+	class state /order=freq;
+run;
+
+
+
